@@ -14,6 +14,7 @@
 		0978C05A1FE42CBF00B923DB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0978C0581FE42CBF00B923DB /* LaunchScreen.storyboard */; };
 		0978C0651FE42CBF00B923DB /* GKGameSessionTestRigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0978C0641FE42CBF00B923DB /* GKGameSessionTestRigTests.swift */; };
 		0978C0701FE42CBF00B923DB /* GKGameSessionTestRigUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0978C06F1FE42CBF00B923DB /* GKGameSessionTestRigUITests.swift */; };
+		0978C0801FE4361F00B923DB /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0978C07F1FE4361F00B923DB /* CloudKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,8 @@
 		0978C06B1FE42CBF00B923DB /* GKGameSessionTestRigUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GKGameSessionTestRigUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0978C06F1FE42CBF00B923DB /* GKGameSessionTestRigUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GKGameSessionTestRigUITests.swift; sourceTree = "<group>"; };
 		0978C0711FE42CBF00B923DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0978C07D1FE4361100B923DB /* GKGameSessionTestRig.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GKGameSessionTestRig.entitlements; sourceTree = "<group>"; };
+		0978C07F1FE4361F00B923DB /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0978C0801FE4361F00B923DB /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +85,7 @@
 				0978C0631FE42CBF00B923DB /* GKGameSessionTestRigTests */,
 				0978C06E1FE42CBF00B923DB /* GKGameSessionTestRigUITests */,
 				0978C04D1FE42CBF00B923DB /* Products */,
+				0978C07E1FE4361F00B923DB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -97,6 +102,7 @@
 		0978C04E1FE42CBF00B923DB /* GKGameSessionTestRig */ = {
 			isa = PBXGroup;
 			children = (
+				0978C07D1FE4361100B923DB /* GKGameSessionTestRig.entitlements */,
 				0978C04F1FE42CBF00B923DB /* AppDelegate.swift */,
 				0978C0511FE42CBF00B923DB /* ViewController.swift */,
 				0978C0531FE42CBF00B923DB /* Main.storyboard */,
@@ -123,6 +129,14 @@
 				0978C0711FE42CBF00B923DB /* Info.plist */,
 			);
 			path = GKGameSessionTestRigUITests;
+			sourceTree = "<group>";
+		};
+		0978C07E1FE4361F00B923DB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0978C07F1FE4361F00B923DB /* CloudKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -194,6 +208,14 @@
 					0978C04B1FE42CBF00B923DB = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
 					};
 					0978C05F1FE42CBF00B923DB = {
 						CreatedOnToolsVersion = 9.2;
@@ -426,7 +448,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = GKGameSessionTestRig/GKGameSessionTestRig.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = P6U7H5A44G;
 				INFOPLIST_FILE = GKGameSessionTestRig/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = radicalfraction.GKGameSessionTestRig;
@@ -440,7 +464,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = GKGameSessionTestRig/GKGameSessionTestRig.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = P6U7H5A44G;
 				INFOPLIST_FILE = GKGameSessionTestRig/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = radicalfraction.GKGameSessionTestRig;
