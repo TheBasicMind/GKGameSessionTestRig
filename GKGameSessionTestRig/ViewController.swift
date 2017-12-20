@@ -9,170 +9,10 @@
 import UIKit
 import GameKit
 
-let WCloudKitContainer                  = "iCloud.radicalfraction.GKGameSessionTestRig"
-let openWabbleForPlayerChallenge        = "newOWTestGameRequest://?token="
-
-enum APIError: Error {
-    case doesNotMatchVersion(currentVersion: Int, storedVersion: Int)
-}
-
-// Change this value when a new version
-// of your encoding and decoding API is
-// published.
-let apiVersionNo = 1
-
-struct APIData<T: Codable>: Codable {
-    let apiVersion: Int
-    let apiData: T
-    
-    enum CodingKeys: String, CodingKey {
-        case apiVersion = "apiVersion"
-        case apiData = "apiData"
-    }
-    
-    init(versionNumber: Int, apiData: T) {
-        self.apiVersion = versionNumber
-        self.apiData = apiData
-    }
-    
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let apiVersion = try container.decode(Int.self, forKey: .apiVersion)
-        if apiVersion != apiVersionNo { throw APIError.doesNotMatchVersion(currentVersion: apiVersionNo, storedVersion: apiVersion) }
-        let apiData = try container.decode(T.self, forKey: .apiData)
-        self.apiVersion = apiVersion
-        self.apiData = apiData
-    }
-}
-
-extension JSONEncoder {
-    open func encodeApiVersion<T>(_ value: T) throws -> Data where T : Codable {
-        let wrappedData = APIData(versionNumber: apiVersionNo, apiData: value)
-        let data = try self.encode(wrappedData)
-        return data
-    }
-}
-
-extension JSONDecoder {
-    open func decodeApiVersion<T>(_ type: T.Type, from data: Data) throws -> T where T : Codable {
-        let wrappedData: APIData = try decode(APIData<T>.self, from: data)
-        let data = wrappedData.apiData
-        return data
-    }
-}
-
-struct GameData: Codable {
-    let someString: String
-}
-/**
- Abstracted for testing and dependency inversion
- */
-protocol OWGameSession {
-    var identifier: String { get }
-    var title: String { get }
-    var owOwner: OWCloudPlayer { get }
-    var owPlayers: [OWCloudPlayer] { get }
-    var lastModifiedDate: Date { get }
-    var lastModifiedOWPlayer: OWCloudPlayer { get }
-    var maxNumberOfConnectedPlayers: Int { get }
-    var badgedOWPlayers: [OWCloudPlayer] { get }
-    func owPlayers(with state: GKConnectionState) -> [OWCloudPlayer]
-    func save(_ gameData: GameData, completionHandler: @escaping (GameData?, Error?) -> Swift.Void)
-    func testPlayerOrder(ownerID: String, gameData: GameData)
-    func loadWabbleData(completionHandler: @escaping (GameData?, Error?) -> Void)
-}
-
-protocol OWCloudPlayer {
-    var playerID: String? { get }
-    var displayName: String? { get }
-}
-
-extension GKCloudPlayer: OWCloudPlayer { }
-
-extension GKGameSession: OWGameSession {
-    func testPlayerOrder(ownerID: String, gameData: GameData) {
-    }
-    
-    var owOwner: OWCloudPlayer {
-        return owner
-    }
-    var owPlayers: [OWCloudPlayer] {
-        return players
-    }
-    var lastModifiedOWPlayer: OWCloudPlayer {
-        return lastModifiedPlayer
-    }
-    var badgedOWPlayers: [OWCloudPlayer] {
-        return badgedPlayers
-    }
-    func owPlayers(with state: GKConnectionState) -> [OWCloudPlayer] {
-        return players(with: state)
-    }
-    func save(_ gameData: GameData, completionHandler: @escaping (GameData?, Error?) -> Void) {
-        let encoder = JSONEncoder()
-        let data: Data
-        do {
-            data = try encoder.encodeApiVersion(gameData)
-        } catch {
-            print("error saving API data")
-            return
-        }
-        
-        #if DEBUG
-            let undata: GameData?
-            let decoder = JSONDecoder()
-            do {
-                undata = try decoder.decodeApiVersion(GameData.self, from: data)
-            } catch {
-                print("couldn't get GameData from network data")
-                return
-            }
-            if undata != nil {
-                print("validated decoding data before saving")
-            }
-        #endif
-        save(data) { (data, error) in
-            var gameData: GameData? = nil
-            let decoder = JSONDecoder()
-            
-            if data != nil {
-                do {
-                    gameData = try decoder.decodeApiVersion(GameData.self, from: data!)
-                    print("******** Could not save data, conflict.")
-                } catch {
-                    
-                }
-            } else {
-                print("******** Data saved.")
-            }
-            completionHandler(gameData, error)
-        }
-    }
-    
-    func loadWabbleData(completionHandler: @escaping (GameData?, Error?) -> Void) {
-        loadData { (data, error) in
-            if data == nil {
-                completionHandler(nil, error)
-                return
-            }
-            let decoder = JSONDecoder()
-            let gameData: GameData
-            do {
-                gameData = try decoder.decodeApiVersion(GameData.self, from: data!)
-            } catch let anError {
-                print("Error: Could not decode gamedata when loading data")
-                completionHandler(nil, anError)
-                return
-            }
-            completionHandler(gameData, error)
-        }
-    }
-}
-
-
 class ViewController: UIViewController {
 
     @IBOutlet var manuallyJoinGameButton: UIButton?
+    @IBOutlet var textView: UITextView?
     var signedInPlayer: GKCloudPlayer?
     var session: GKGameSession?
     var sessions: [GKGameSession]?
@@ -192,16 +32,16 @@ class ViewController: UIViewController {
     }
     
     func printError(_ error: GKGameSessionError) {
-        print("Error = \(error)")
+        myDebugPrint("Error = \(error)")
     }
     
     @IBAction func getSignedInPlayer(_ sender: Any) {
         GKCloudPlayer.getCurrentSignedInPlayer(forContainer: WCloudKitContainer) { [weak self] (cloudKitPlayer, error) in
             if let cloudKitPlayer = cloudKitPlayer {
                 self?.signedInPlayer = cloudKitPlayer
-                print("******** Got current signed in player")
-                print("Player Name: \(cloudKitPlayer.displayName ?? "Null")")
-                print("with player ID: \(cloudKitPlayer.playerID ?? "Null")")
+                myDebugPrint("******** Got current signed in player")
+                myDebugPrint("    ******** Player Name: \(cloudKitPlayer.displayName ?? "Null")")
+                myDebugPrint("    ******** with player ID: \(cloudKitPlayer.playerID?.strHash() ?? "Null")")
             } else {
                 if let error = error as? GKGameSessionError {
                     self?.printError(error)
@@ -218,17 +58,18 @@ class ViewController: UIViewController {
                 self?.printError(error)
                 return
             }
-            print("******** Got sessions, count = \(retreivedSessions?.count ?? 0)")
+            myDebugPrint("******** Got sessions, count = \(retreivedSessions?.count ?? 0)")
             
             self?.sessions = retreivedSessions
             guard let retreivedSessions = retreivedSessions else { return }
             for gameSession in retreivedSessions {
-                gameSession.loadWabbleData  {
+                gameSession.loadGameData  {
                     [weak self] (gameData, error) in
                     if let error = error as? GKGameSessionError {
                         self?.printError(error)
                     } else {
                         if let gameData = gameData {
+                            myDebugPrint("    ******** Got data for session, \(gameData.someString)")
                             self?.sessionsAndData[gameSession] = gameData
                         }
                     }
@@ -239,12 +80,14 @@ class ViewController: UIViewController {
     }
     
     @IBAction func createSession(_ sender: Any) {
-        GKGameSession.createSession(inContainer: WCloudKitContainer, withTitle: "Wabble Two Player Owned by \(signedInPlayer?.displayName ?? "Null")", maxConnectedPlayers: 2) {
+        GKGameSession.createSession(inContainer: WCloudKitContainer, withTitle: "Wabble Two Player Owned by \(signedInPlayer?.displayName ?? "Null"), id: \(signedInPlayer?.playerID?.strHash() ?? "Null")", maxConnectedPlayers: 2) {
             [weak self] (gameSession, error) in
             if let error = error as? GKGameSessionError {
                 self?.printError(error)
             } else {
-                print("******** Created session: \(gameSession?.title ?? "No title defined")")
+                myDebugPrint("******** Created session: \(gameSession?.title ?? "No title defined")")
+                myDebugPrint("    ******** Session owner: \(gameSession?.owner.displayName ?? "Null")")
+                myDebugPrint("    ******** Session owner ID: \(gameSession?.owner.playerID?.strHash() ?? "Null")")
                 self?.session = gameSession
             }
         }
@@ -252,36 +95,38 @@ class ViewController: UIViewController {
     
     @IBAction func logSession(_ sender: Any) {
         guard let session = session else {
-            print("No session assigned to session property as yet.")
+            myDebugPrint("No session assigned to session property as yet.")
             return
         }
-        print("Session Title: \(session.title), \(session.owner.displayName ?? "No display name")")
-        print("Session owner: \(session.owner.displayName ?? "Null")")
-        print("List of Session players:")
+        myDebugPrint("--------------")
+        myDebugPrint("Session Title: \(session.title)")
+        myDebugPrint("Session owner: \(session.owner.displayName ?? "Null"), id: \(session.owner.playerID?.strHash() ?? "Null")")
+        myDebugPrint("List of Session players:")
         if session.players.count == 0 {
-            print("none")
+            myDebugPrint("none")
         }
         for (i, player) in session.players.enumerated() {
-            print("    Player number: \(i), name: \(player.displayName ?? "Null")")
+            myDebugPrint("    Player number: \(i), name: \(player.displayName ?? "Null"), id: \(player.playerID?.strHash() ?? "Null")")
         }
+        myDebugPrint("--------------")
     }
     
     func saveData(contentString: String) {
         guard let session = session else {
-            print("Error: Session must be set-up and cached before we can save data")
+            myDebugPrint("Error: Session must be set-up and cached before we can save data")
             return
         }
 
         let myData = GameData(someString: contentString)
-        session.save(myData) {
+        session.saveGameData(myData) {
             [weak self] (data, error) in
             if let error = error as? GKGameSessionError {
                 self?.printError(error)
             } else {
                 if let data = data {
-                    print("Conflict: data already saved with someString: \(data.someString)")
+                    myDebugPrint("Conflict: data already saved with someString: \(data.someString)")
                 } else {
-                    print("******** Saved data with someString: \(myData.someString)")
+                    myDebugPrint("******** Saved data with someString: \(myData.someString)")
                     self?.sessionsAndData[session] = myData
                 }
             }
@@ -289,11 +134,11 @@ class ViewController: UIViewController {
     }
     
     @IBAction func saveDataToSession(_ sender: Any) {
-        saveData(contentString: "Data \"Ice Cream\", player: \(signedInPlayer?.displayName ?? "Null")")
+        saveData(contentString: "Data \"Ice Cream\", saved by player: \(signedInPlayer?.displayName ?? "Null"), id: \(signedInPlayer?.playerID?.strHash() ?? "Null")")
     }
     
     @IBAction func saveDataToSession2(_ sender: Any) {
-        saveData(contentString: "Data \"Apples\", player: \(signedInPlayer?.displayName ?? "Null")")
+        saveData(contentString: "Data \"Apples\", saved by player: \(signedInPlayer?.displayName ?? "Null"), id: \(signedInPlayer?.playerID?.strHash() ?? "Null")")
     }
     
     @IBAction func getSharingURL(_ sender: Any) {
@@ -305,7 +150,7 @@ class ViewController: UIViewController {
                         self?.printError(error)
                         
                     } else if let error = error {
-                        print("Error not accounted for: \(error)")
+                        myDebugPrint("Error not accounted for: \(error)")
                     }
                     return
                 }
@@ -314,54 +159,54 @@ class ViewController: UIViewController {
                 let nestedURLString = openWabbleForPlayerChallenge + encodedChallengeURL!
                 let nestedURL = URL(string: nestedURLString)!
                 self?.inviteURL = nestedURL
-                print("******** Retreived share URL: \(url)")
-                print("Retreived encoded URL: \(nestedURL)")
+                myDebugPrint("******** Retreived share URL: \(url)")
+                myDebugPrint("Retreived encoded URL: \(nestedURL)")
             }
         }
     }
     
     @IBAction func loadDataForSession(_ sender: Any) {
-        session?.loadWabbleData  {
+        session?.loadGameData  {
             [weak self] (gameData, error) in
             if let error = error as? GKGameSessionError {
                 self?.printError(error)
             } else {
                 if let gameData = gameData {
-                    print("******** Retreived session data with someString: \(gameData.someString)")
+                    myDebugPrint("******** Retreived session data with someString: \(gameData.someString)")
                     self?.gameData = gameData
                     self?.sessionsAndData[self!.session!] = gameData
                 } else {
-                    print("It appears no data has been saved to this session yet")
+                    myDebugPrint("Request to iCloud returned nothing. No data has been saved.")
                 }
             }
         }
     }
     
     @IBAction func logSessionData(_ sender: Any) {
-        print("Session data someString: \(gameData?.someString ?? "No string or game data")")
+        myDebugPrint("Session data someString: \(gameData?.someString ?? "No string or game data")")
     }
     
     @IBAction func deleteSessions(_ sender: Any) {
         guard let sessions = sessions else {
-            print("Must have some sessions if we are going to try to delete them")
+            myDebugPrint("Must have some sessions if we are going to try to delete them. Press \"List Sessions.\"")
             return
         }
         
         guard sessions.count > 0 else {
-            print("No sessions to delete.")
+            myDebugPrint("No sessions to delete.")
             return
         }
         
         var tempSessions = sessions
 
-        for (index, session) in sessions.enumerated() {
+        for (index, session) in sessions.reversed().enumerated() {
             GKGameSession.remove(withIdentifier: session.identifier) {
                 [weak self] (error) in
                 if let error = error as? GKGameSessionError {
                     self?.printError(error)
                 } else {
-                    tempSessions.remove(at: index)
-                    print ("******** Deleted session")
+                    tempSessions.remove(at: sessions.count - index - 1)
+                    myDebugPrint("******** Deleted session")
                 }
                 if index == sessions.count - 1 {
                     self?.sessions = tempSessions
@@ -381,17 +226,17 @@ class ViewController: UIViewController {
 
 extension ViewController: GKGameSessionEventListener {
     public func session(_ session: GKGameSession, didAdd player: GKCloudPlayer) {
-        print("####### Session: \(session.title), Did add player: \(String(describing: player.displayName))")
+        myDebugPrint("###### Session: \(session.title), Did add player: \(String(describing: player.displayName)), id: \(player.playerID?.strHash() ?? "Null")")
         self.session = session
     }
     
     public func session(_ session: GKGameSession, didRemove player: GKCloudPlayer) {
-        print("####### Did remove player: \(player.displayName ?? "Null")")
-        print("Session owner: \(session.owner.displayName ?? "Null")")
+        myDebugPrint("###### Did remove player: \(player.displayName ?? "Null")")
+        myDebugPrint("Session owner: \(session.owner.displayName ?? "Null")")
     }
     
     public func session(_ session: GKGameSession, player: GKCloudPlayer, didChange newState: GKConnectionState) {
-        print("####### Player: \(player.displayName ?? "Name is Null"), did change connection stare: \(newState)")
+        myDebugPrint("###### Player: \(player.displayName ?? "Name is Null"), did change connection stare: \(newState)")
     }
     
     public func session(_  : GKGameSession, player: GKCloudPlayer, didSave data: Data) {
@@ -400,10 +245,10 @@ extension ViewController: GKGameSessionEventListener {
         do {
             gameData = try decoder.decodeApiVersion(GameData.self, from: data)
         } catch {
-            print("Error: Could not decode gamedata from network data")
+            myDebugPrint("Error: Could not decode gamedata from network data")
             return
         }
-        print("####### Player: \(player.displayName ?? "Name is Null"), did save data: \(gameData.someString)")
+        myDebugPrint("###### Player: \(player.displayName ?? "Name is Null"), id: \(player.playerID?.strHash() ?? "Null"), did save data: \(gameData.someString)")
     }
     
     public func session(_ session: GKGameSession, didReceive data: Data, from player: GKCloudPlayer) {
