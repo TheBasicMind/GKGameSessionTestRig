@@ -31,6 +31,8 @@ I set up the test rig to allow only two players to join because I am primarily i
 
 Generally I have kept the code as simple as possible. But I did also want to test out a simple Data encoding wrapper I developed to test encoded data matches a given API version. This is working well and I have left it in because it is easier to do so than strip it out and also it may prove useful to others (using such a wrapper is good practice - here's why).
 
+I have implemented a simple hash algorithm to reduce the length of the Game Kit Game Session playerIDs. I did this becase the standard IDs make the log files so difficult to read. There is of course a 1 in 99,999,999 chance of a collision. If those odds sound bad to you and you think a collision will make debugging a problem then feel free to strip out the hashing! 
+
 When encoding objects to JSON for use with a cloud service such as iCloud, Swift's built in coder will check if the key paths of the object being decoded to, match the keys paths of the object that was used to encode in the first place.
  
 container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey
