@@ -23,7 +23,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         GKGameSession.add(listener: self)
-        manuallyJoinGameButton?.isEnabled = !JoinAtStartUp
+        manuallyJoinGameButton?.isEnabled = !GKGameSessionRigBools.joinAtStartUp
     }
 
     override func didReceiveMemoryWarning() {
@@ -36,12 +36,12 @@ class ViewController: UIViewController {
     }
     
     @IBAction func getSignedInPlayer(_ sender: Any) {
-        GKCloudPlayer.getCurrentSignedInPlayer(forContainer: WCloudKitContainer) { [weak self] (cloudKitPlayer, error) in
+        GKCloudPlayer.getCurrentSignedInPlayer(forContainer: GKGameSessionRigStrings.cloudKitContainer) { [weak self] (cloudKitPlayer, error) in
             if let cloudKitPlayer = cloudKitPlayer {
                 self?.signedInPlayer = cloudKitPlayer
                 myDebugPrint("******** Got current signed in player")
-                myDebugPrint("    ******** Player Name: \(cloudKitPlayer.displayName ?? "Null")")
-                myDebugPrint("    ******** with player ID: \(cloudKitPlayer.playerID?.strHash() ?? "Null")")
+                myDebugPrint("             Player Name: \(cloudKitPlayer.displayName ?? "Null")")
+                myDebugPrint("             with player ID: \(cloudKitPlayer.playerID?.strHash() ?? "Null")")
             } else {
                 if let error = error as? GKGameSessionError {
                     self?.printError(error)
@@ -51,8 +51,30 @@ class ViewController: UIViewController {
         }
     }
     
+    @IBAction func logSignedInPlayer(_ sender: Any) {
+        guard let signedInPlayer = signedInPlayer else {
+            myDebugPrint("Error: Player must be signed in before we can log the player object's properties")
+            return
+        }
+        myDebugPrint("******** Signed in player display name = \(signedInPlayer.displayName ?? "Null")")
+        myDebugPrint("         Signed in player, playerID = \(signedInPlayer.playerID?.strHash() ?? "Null")")
+        if let badgedPlayers = session?.badgedPlayers {
+            var badgedPlayer: GKCloudPlayer? = nil
+            for player in badgedPlayers {
+                if player.playerID == signedInPlayer.playerID {
+                    badgedPlayer = player
+                }
+            }
+            if badgedPlayer != nil {
+                myDebugPrint("         signed in player is badged \(signedInPlayer.playerID?.strHash() ?? "Null")")
+            } else {
+                myDebugPrint("         signed in player is not badged")
+            }
+        }
+    }
+    
     @IBAction func listSessions(_ sender: Any) {
-        GKGameSession.loadSessions(inContainer: WCloudKitContainer) {
+        GKGameSession.loadSessions(inContainer: GKGameSessionRigStrings.cloudKitContainer) {
             [weak self] (retreivedSessions, error) in
             if let error = error as? GKGameSessionError {
                 self?.printError(error)
@@ -80,7 +102,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func createSession(_ sender: Any) {
-        GKGameSession.createSession(inContainer: WCloudKitContainer, withTitle: "Wabble Two Player Owned by \(signedInPlayer?.displayName ?? "Null"), id: \(signedInPlayer?.playerID?.strHash() ?? "Null")", maxConnectedPlayers: 2) {
+        GKGameSession.createSession(inContainer: GKGameSessionRigStrings.cloudKitContainer, withTitle: "Wabble Two Player Owned by \(signedInPlayer?.displayName ?? "Null"), id: \(signedInPlayer?.playerID?.strHash() ?? "Null")", maxConnectedPlayers: 2) {
             [weak self] (gameSession, error) in
             if let error = error as? GKGameSessionError {
                 self?.printError(error)
@@ -156,7 +178,7 @@ class ViewController: UIViewController {
                 }
                 
                 let encodedChallengeURL = url.absoluteString.addingPercentEncoding(withAllowedCharacters:.urlHostAllowed)
-                let nestedURLString = openWabbleForPlayerChallenge + encodedChallengeURL!
+                let nestedURLString = GKGameSessionRigStrings.openWabbleForPlayerChallenge + encodedChallengeURL!
                 let nestedURL = URL(string: nestedURLString)!
                 self?.inviteURL = nestedURL
                 myDebugPrint("******** Retreived share URL: \(url)")
@@ -222,24 +244,77 @@ class ViewController: UIViewController {
             delegate.joinGame()
         }
     }
+    
+    @IBAction func messageOpponent(_ sender: Any) {
+        guard let signedInPlayer = signedInPlayer else {
+            myDebugPrint("Error: Player must be signed in before we can message opponents")
+            return
+        }
+        guard let session = session else {
+            myDebugPrint("Error: Session must be set-up and cached before we can message an opponent")
+            return
+        }
+        guard session.players.count > 1 else {
+            myDebugPrint("Error: The session player count must be greater than one before we can send a messsage")
+            return
+        }
+        var playersToMessage: [GKCloudPlayer] = []
+        for player in session.players {
+            if player.playerID != signedInPlayer.playerID {
+                playersToMessage.append(player)
+            }
+        }
+        let message = "Hi, this is a message"
+        session.sendMessage(withLocalizedFormatKey: message, arguments: [], data: nil, to: playersToMessage, badgePlayers: true) {
+            (error) in
+            if let error = error {
+                print(error)
+            } else {
+                myDebugPrint("******** Message successfully sent. Message content: \(message)")
+            }
+        }
+        
+    }
+    
+    @IBAction func clearBadge(_ sender: Any) {
+        guard let signedInPlayer = signedInPlayer else {
+            myDebugPrint("Error: Player must be signed in before we can message opponents")
+            return
+        }
+        guard let session = session else {
+            myDebugPrint("Error: Session must be set-up and cached before we can message an opponent")
+            return
+        }
+        session.clearBadge(for: [signedInPlayer]) {
+            (error) in
+            if let error = error {
+                print(error)
+            } else {
+                myDebugPrint("******** Local player \(signedInPlayer.playerID?.strHash() ?? "Null"), badge removed")
+            }
+        }
+    }
 }
 
 extension ViewController: GKGameSessionEventListener {
     public func session(_ session: GKGameSession, didAdd player: GKCloudPlayer) {
-        myDebugPrint("###### Session: \(session.title), Did add player: \(String(describing: player.displayName)), id: \(player.playerID?.strHash() ?? "Null")")
         self.session = session
+        myDebugPrint("###### Session: \(session.title), Did add player: \(String(describing: player.displayName)), id: \(player.playerID?.strHash() ?? "Null")")
     }
     
     public func session(_ session: GKGameSession, didRemove player: GKCloudPlayer) {
+        self.session = session
         myDebugPrint("###### Did remove player: \(player.displayName ?? "Null")")
         myDebugPrint("Session owner: \(session.owner.displayName ?? "Null")")
     }
     
     public func session(_ session: GKGameSession, player: GKCloudPlayer, didChange newState: GKConnectionState) {
-        myDebugPrint("###### Player: \(player.displayName ?? "Name is Null"), did change connection stare: \(newState)")
+        self.session = session
+        myDebugPrint("###### Player: \(player.displayName ?? "Name is Null"), did change connection state: \(newState.rawValue)")
     }
     
-    public func session(_  : GKGameSession, player: GKCloudPlayer, didSave data: Data) {
+    public func session(_ session: GKGameSession, player: GKCloudPlayer, didSave data: Data) {
+        self.session = session
         let decoder = JSONDecoder()
         let gameData: GameData
         do {
@@ -252,11 +327,14 @@ extension ViewController: GKGameSessionEventListener {
     }
     
     public func session(_ session: GKGameSession, didReceive data: Data, from player: GKCloudPlayer) {
-        
+        self.session = session
+
     }
     
     public func session(_ session: GKGameSession, didReceiveMessage message: String, with data: Data, from player: GKCloudPlayer) {
-        
+        self.session = session
+        myDebugPrint("Message received from player: \(player)")
+        myDebugPrint(message)
     }
 }
 

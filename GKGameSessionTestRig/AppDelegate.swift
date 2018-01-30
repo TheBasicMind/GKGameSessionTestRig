@@ -70,7 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 let urlString = urlStringToken.replacingOccurrences(of: token, with: "", options: .literal, range: stringRange)
                 if let url = URL(string: urlString) {
                     gameURL = url
-                    if JoinAtStartUp {
+                    if GKGameSessionRigBools.joinAtStartUp {
                         joinGame()
                         success = true
                     }

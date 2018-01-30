@@ -19,11 +19,17 @@ func myDebugPrint(_ string: String) {
     print(string)
 }
 
-let WCloudKitContainer                  = "iCloud.radicalfraction.GKGameSessionTestRig"
-let openWabbleForPlayerChallenge        = "newOWTestGameRequest://?token="
-let JoinAtStartUp                       = true
-let apiVersionNo                        = 1
-let shortIDs                            = true
+enum GKGameSessionRigStrings {
+    static let cloudKitContainer                  = "iCloud.radicalfraction.GKGameSessionTestRig"
+    static let openWabbleForPlayerChallenge        = "newOWTestGameRequest://?token="
+}
+enum GKGameSessionAPI {
+    static let versionNo                        = 1
+}
+enum GKGameSessionRigBools {
+    static let joinAtStartUp                       = true
+    static let shortIDs                            = true
+}
 
 enum APIError: Error {
     case doesNotMatchVersion(currentVersion: Int, storedVersion: Int)
@@ -46,7 +52,7 @@ struct APIData<T: Codable>: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let apiVersion = try container.decode(Int.self, forKey: .apiVersion)
-        if apiVersion != apiVersionNo { throw APIError.doesNotMatchVersion(currentVersion: apiVersionNo, storedVersion: apiVersion) }
+        if apiVersion != GKGameSessionAPI.versionNo { throw APIError.doesNotMatchVersion(currentVersion: apiVersion, storedVersion: apiVersion) }
         let apiData = try container.decode(T.self, forKey: .apiData)
         self.apiVersion = apiVersion
         self.apiData = apiData
@@ -55,7 +61,7 @@ struct APIData<T: Codable>: Codable {
 
 extension JSONEncoder {
     open func encodeApiVersion<T>(_ value: T) throws -> Data where T : Codable {
-        let wrappedData = APIData(versionNumber: apiVersionNo, apiData: value)
+        let wrappedData = APIData(versionNumber: GKGameSessionAPI.versionNo, apiData: value)
         let data = try self.encode(wrappedData)
         return data
     }

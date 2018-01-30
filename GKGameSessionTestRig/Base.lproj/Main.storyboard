@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="wov-aX-X2N">
-                                <rect key="frame" x="17" y="43.5" width="340" height="580"/>
+                                <rect key="frame" x="17" y="-1.5" width="340" height="670"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IvW-NV-bNM">
                                         <rect key="frame" x="0.0" y="0.0" width="340" height="30"/>
@@ -28,78 +28,99 @@
                                             <action selector="getSignedInPlayer:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fmq-Ns-gX3"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mA2-1K-52K">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QCx-KH-l60">
                                         <rect key="frame" x="0.0" y="30" width="340" height="30"/>
+                                        <state key="normal" title="Log signed in player"/>
+                                        <connections>
+                                            <action selector="logSignedInPlayer:" destination="BYZ-38-t0r" eventType="touchUpInside" id="9fw-Rg-DOD"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mA2-1K-52K">
+                                        <rect key="frame" x="0.0" y="60" width="340" height="30"/>
                                         <state key="normal" title="List Sessions "/>
                                         <connections>
                                             <action selector="listSessions:" destination="BYZ-38-t0r" eventType="touchUpInside" id="bCl-aZ-o99"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CV9-dG-PIZ">
-                                        <rect key="frame" x="0.0" y="60" width="340" height="30"/>
+                                        <rect key="frame" x="0.0" y="90" width="340" height="30"/>
                                         <state key="normal" title="Create Session"/>
                                         <connections>
                                             <action selector="createSession:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uxL-I1-Bf5"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="56a-Uh-xSR">
-                                        <rect key="frame" x="0.0" y="90" width="340" height="30"/>
+                                        <rect key="frame" x="0.0" y="120" width="340" height="30"/>
                                         <state key="normal" title="Log Session"/>
                                         <connections>
                                             <action selector="logSession:" destination="BYZ-38-t0r" eventType="touchUpInside" id="EP6-bk-YLZ"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QC6-k5-XIA">
-                                        <rect key="frame" x="0.0" y="120" width="340" height="30"/>
+                                        <rect key="frame" x="0.0" y="150" width="340" height="30"/>
                                         <state key="normal" title="Save Data to Session &quot;Ice Cream&quot;"/>
                                         <connections>
                                             <action selector="saveDataToSession:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hSR-al-x62"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KU6-QC-NGZ">
-                                        <rect key="frame" x="0.0" y="150" width="340" height="30"/>
+                                        <rect key="frame" x="0.0" y="180" width="340" height="30"/>
                                         <state key="normal" title="Save Data to Session &quot;Apples&quot;"/>
                                         <connections>
                                             <action selector="saveDataToSession2:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eCB-J4-gQW"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7bP-4q-WBF">
-                                        <rect key="frame" x="0.0" y="180" width="340" height="30"/>
+                                        <rect key="frame" x="0.0" y="210" width="340" height="30"/>
                                         <state key="normal" title="Get Share URL"/>
                                         <connections>
                                             <action selector="getSharingURL:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nzo-BP-ovG"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mxv-5d-o0l">
-                                        <rect key="frame" x="0.0" y="210" width="340" height="30"/>
+                                        <rect key="frame" x="0.0" y="240" width="340" height="30"/>
                                         <state key="normal" title="Load data for session"/>
                                         <connections>
                                             <action selector="loadDataForSession:" destination="BYZ-38-t0r" eventType="touchUpInside" id="OxX-6R-NU6"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eS2-RW-tZS">
-                                        <rect key="frame" x="0.0" y="240" width="340" height="30"/>
+                                        <rect key="frame" x="0.0" y="270" width="340" height="30"/>
                                         <state key="normal" title="Log session data"/>
                                         <connections>
                                             <action selector="logSessionData:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4nM-PL-BUb"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EBX-qa-jWZ">
-                                        <rect key="frame" x="0.0" y="270" width="340" height="30"/>
+                                        <rect key="frame" x="0.0" y="300" width="340" height="30"/>
                                         <state key="normal" title="Delete sessions"/>
                                         <connections>
                                             <action selector="deleteSessions:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3in-ck-oKb"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RUr-7L-gNU">
-                                        <rect key="frame" x="0.0" y="300" width="340" height="30"/>
+                                        <rect key="frame" x="0.0" y="330" width="340" height="30"/>
                                         <state key="normal" title="Manually Join Game"/>
                                         <connections>
                                             <action selector="manuallyJoin:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5Si-ft-UnS"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5fC-4j-4nW">
+                                        <rect key="frame" x="0.0" y="360" width="340" height="30"/>
+                                        <state key="normal" title="Message Opponent"/>
+                                        <connections>
+                                            <action selector="messageOpponent:" destination="BYZ-38-t0r" eventType="touchUpInside" id="XHF-yO-zXz"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OJ8-3q-eIj">
+                                        <rect key="frame" x="0.0" y="390" width="340" height="30"/>
+                                        <state key="normal" title="Clear Badge"/>
+                                        <connections>
+                                            <action selector="clearBadge:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Zm3-pl-te8"/>
+                                        </connections>
+                                    </button>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="interactive" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="q34-ji-b1I">
-                                        <rect key="frame" x="0.0" y="330" width="340" height="250"/>
+                                        <rect key="frame" x="0.0" y="420" width="340" height="250"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <accessibility key="accessibilityConfiguration">
                                             <accessibilityTraits key="traits" keyboardKey="YES"/>
