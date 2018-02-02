@@ -12,18 +12,28 @@ I wrote this test-rig in Swift to privide insight into the functioning of the GK
 - The "Get Share URL" button gets the URL that can be used by another user to join a session. In fact it gets two URLs. One is the URL that is returned by the cloudkit API, the other is a URL the test rig constructs that can be used to overcome a limitation of the current API. With the current API joining a game doesn't automatically open the App. It is natural that if a friend sends a "Join me in this game" request, that you would like the recipient to be able to click on the link, the App open and the game be joined. Tapping the URL returned by the cloudkit API (e.g. in an iMessage or some other message) will join the game but won't start the App. The user has to do that separately. However by registering a URL that will open the app, and by then including the "join game" URL as an encoded paramateter appended to the first URL, it is possible to do both actions. The test rig demonstrates how. However there are some "gotchas" to be aware of, which are also reasonably straighforward to overcome, but that may not be obvious to those who are less familiar with iOS APIs and methods. 
 - The "Load data for session" button loads the last set of data that has been saved by any of the players to the iCloud session
 - The "Log session data" button doesn't execute an API call, but simply writes the contents of any data that has been loaded from the cloud to the log. Like for the session variable, there is a single gameData property which is used to cache the game data downloaded as a result of pressing the "Load data for session" button.
-- The "Manually Join Game" button is only enabled if the JoinAtStartup constant is set to false. When join at startup is set to true, if the user clicks on 
+- The "Manually Join Game" button is only enabled if the JoinAtStartup constant is set to false. When join at startup is set to true, if the user clicks on
+- The message apponent button will send a message to all opponents who have joined the session (currently in this test rig I am limiting things to one apponent, but this is trivial to amend)
+
+### Gotchas
 
 These are the "gotchas" I have learned about:
 
 - After a game session is created, the game session owner display name is the name of the device owner. *But...*
+
 - When a player signs in, the signed in player display name is the game centre player's "handle"
+
 - If a player is not signed in, then for communications with any other session members, the player’s display name is null and the playerID id appears to be a temporary one. It is important to devise a scheme where this display name and ID is not used. 
 
 The best way to do this is:
 
 1. Ensuring a player is signed in before creating a game.
+
 2. When opening the app to join a game delay joining the game until after the player is signed in. Then it will be possible to save directly to the iCloud session. Also the game owner will get a notification with all the user’s details present. The easiest way to do this is to store the join game URL in a variable (see the line `gameURL = url` in the app delegate) and then call `UIApplication.shared.open(gameURL, options: [:], completionHandler: nil)` on the successful completion of a call to `GKCloudPlayer.getCurrentSignedInPlayer(forContainer: container)`
+
+- If a player creates a new game, saves data to it and then requests the session URL, the user can no longer save to the game session until another player has joined.
+
+- When another player joins, there will be a false positive about the first player exiting the session. I suspect what is going on here is to do with the transition from the private to the public iCloud database. That the private database is copied to the public, but that the public can't be saved to until there are multiple users. And that the initial user is unsbsribed from the private database and resubscribed to the public as the change is made. Just a guess.
 
 ## Notes and Limitations
 

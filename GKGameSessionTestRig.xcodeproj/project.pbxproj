@@ -15,6 +15,7 @@
 		0978C0651FE42CBF00B923DB /* GKGameSessionTestRigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0978C0641FE42CBF00B923DB /* GKGameSessionTestRigTests.swift */; };
 		0978C0701FE42CBF00B923DB /* GKGameSessionTestRigUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0978C06F1FE42CBF00B923DB /* GKGameSessionTestRigUITests.swift */; };
 		0978C0801FE4361F00B923DB /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0978C07F1FE4361F00B923DB /* CloudKit.framework */; };
+		0992A33F20247CFA00A14078 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 0992A33E20247CFA00A14078 /* README.md */; };
 		09CA63961FEABBB100938B80 /* MiscExtensionsFunctionsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CA63951FEABBB100938B80 /* MiscExtensionsFunctionsConstants.swift */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +52,7 @@
 		0978C0711FE42CBF00B923DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0978C07D1FE4361100B923DB /* GKGameSessionTestRig.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GKGameSessionTestRig.entitlements; sourceTree = "<group>"; };
 		0978C07F1FE4361F00B923DB /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		0992A33E20247CFA00A14078 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		09CA63951FEABBB100938B80 /* MiscExtensionsFunctionsConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiscExtensionsFunctionsConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -104,6 +106,7 @@
 		0978C04E1FE42CBF00B923DB /* GKGameSessionTestRig */ = {
 			isa = PBXGroup;
 			children = (
+				0992A33E20247CFA00A14078 /* README.md */,
 				0978C07D1FE4361100B923DB /* GKGameSessionTestRig.entitlements */,
 				0978C04F1FE42CBF00B923DB /* AppDelegate.swift */,
 				0978C0511FE42CBF00B923DB /* ViewController.swift */,
@@ -259,6 +262,7 @@
 			files = (
 				0978C05A1FE42CBF00B923DB /* LaunchScreen.storyboard in Resources */,
 				0978C0571FE42CBF00B923DB /* Assets.xcassets in Resources */,
+				0992A33F20247CFA00A14078 /* README.md in Resources */,
 				0978C0551FE42CBF00B923DB /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
