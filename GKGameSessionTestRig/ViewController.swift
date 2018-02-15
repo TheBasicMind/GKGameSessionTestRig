@@ -8,6 +8,25 @@
 
 import UIKit
 import GameKit
+import MessageUI
+
+extension ViewController: MFMessageComposeViewControllerDelegate {
+    func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+        controller.dismiss(animated: true, completion: nil)
+        switch result {
+        case .cancelled, .failed:
+            /// TODO: Should be optimised to ask again
+            navigationController?.popViewController(animated: true)
+        case .sent:
+            // The successful case
+            // we do nothing because
+            // now the gameState object
+            // is listinging for changes
+            // to the game session state
+            break
+        }
+    }
+}
 
 class ViewController: UIViewController {
 
@@ -181,10 +200,20 @@ class ViewController: UIViewController {
                 let nestedURLString = GKGameSessionRigStrings.openWabbleForPlayerChallenge + encodedChallengeURL!
                 let nestedURL = URL(string: nestedURLString)!
                 self?.inviteURL = nestedURL
+                self?.inviteOpponent(withSharingURL: nestedURL)
                 myDebugPrint("******** Retreived share URL: \(url)")
                 myDebugPrint("Retreived encoded URL: \(nestedURL)")
             }
         }
+    }
+    
+    private func inviteOpponent(withSharingURL url: URL) {
+        guard MFMessageComposeViewController.canSendText() else { return }
+        let composeVC = MFMessageComposeViewController()
+        composeVC.messageComposeDelegate = self
+        let bodyText = NSLocalizedString("Hey, would you like to join me for a game? ", comment: "")
+        composeVC.body = bodyText + "\(url)"
+        self.present(composeVC, animated: true, completion: nil)
     }
     
     @IBAction func loadDataForSession(_ sender: Any) {
@@ -298,23 +327,23 @@ class ViewController: UIViewController {
 
 extension ViewController: GKGameSessionEventListener {
     public func session(_ session: GKGameSession, didAdd player: GKCloudPlayer) {
-        self.session = session
+        //self.session = session
         myDebugPrint("###### Session: \(session.title), Did add player: \(String(describing: player.displayName)), id: \(player.playerID?.strHash() ?? "Null")")
     }
     
     public func session(_ session: GKGameSession, didRemove player: GKCloudPlayer) {
-        self.session = session
+        //self.session = session
         myDebugPrint("###### Did remove player: \(player.displayName ?? "Null")")
         myDebugPrint("Session owner: \(session.owner.displayName ?? "Null")")
     }
     
     public func session(_ session: GKGameSession, player: GKCloudPlayer, didChange newState: GKConnectionState) {
-        self.session = session
+        //self.session = session
         myDebugPrint("###### Player: \(player.displayName ?? "Name is Null"), did change connection state: \(newState.rawValue)")
     }
     
     public func session(_ session: GKGameSession, player: GKCloudPlayer, didSave data: Data) {
-        self.session = session
+        //self.session = session
         let decoder = JSONDecoder()
         let gameData: GameData
         do {
@@ -327,12 +356,12 @@ extension ViewController: GKGameSessionEventListener {
     }
     
     public func session(_ session: GKGameSession, didReceive data: Data, from player: GKCloudPlayer) {
-        self.session = session
+        //self.session = session
 
     }
     
     public func session(_ session: GKGameSession, didReceiveMessage message: String, with data: Data, from player: GKCloudPlayer) {
-        self.session = session
+        //self.session = session
         myDebugPrint("Message received from player: \(player)")
         myDebugPrint(message)
     }
