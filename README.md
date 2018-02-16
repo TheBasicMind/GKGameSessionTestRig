@@ -41,6 +41,8 @@ The best way to do this is:
 
 - If a player creates a new game, saves data to it and then requests the session URL, then another player joings the game, if the first player (the owner) deletes the session, the second player will still be able to save to the session, and there will be no error reported. However if either player requests to load the sessions he/she is a member of, the game session will no longer be in the list
 
+- If a player saves data and the game is not running, clearly the opponent will not get the save notification. It is useful to be able to notify the other player to let that player know it is their turn. Fortunately sending a message will result in a GameKit notification being sent to the other player if the game is not running - all automatically (good job Apple, this saves a lot of work). Because of this nice benetit, I started saving data and immediately sending a message (before the completion handler of the save had been called). However if you do this, then the save will fail with a conflict, because the message, it seems, also updates the session object. This will then necessitate another save. Not good (though if you run into this problem it does have the dubious benefit of helping ensure you have your save error handling working well !). To avoid this problem, ensure the save data completion handling is done before the message is dispatched.
+
 
 ## Notes and Limitations
 
