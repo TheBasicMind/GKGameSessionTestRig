@@ -43,6 +43,40 @@ The best way to do this is:
 
 - If a player saves data and the game is not running, clearly the opponent will not get the save notification. It is useful to be able to notify the other player to let that player know it is their turn. Fortunately sending a message will result in a GameKit notification being sent to the other player if the game is not running - all automatically (good job Apple, this saves a lot of work). Because of this nice benefit, I started saving data and immediately sending a message (before the completion handler of the save had been called). However if you do this, then the save will fail with a conflict, because the message, it seems, also updates the session object. This will then necessitate another save. Not good (though if you run into this problem it does have the dubious benefit of helping ensure you have your save error handling working well !). To avoid this problem, ensure the save data completion handling is done before the message is dispatched, however I suggest delaying the dispatch of the message (5 seconds seems a reasonable delay), because the message results notification gets to the opponent quicker than the save results, which induces a session save conflict the next time that opponent tries to save! Alternatively the message could be sent before the turn, which may be more practical, but the logic of this is a little backwards and could result in turn notications followed by turn save failures, which will leave the receving oponent confused.
 
+## Second Device on Same iCloud Account - Gotcha
+
+Another set of cases it is important to understand the behaviours for, is when a player has multiple devices (e.g. 1 or 2 iPads and another iPhone or an Apple TV) logged in using the same iCloud account. If the player has the app open on 2 devices and is playing on one of the devices, what does the other device "see"?
+
+If a player  (Dave) with 2 devices (iPhone and iPad) creates a game against another player (Michelle), these are the rules for what communication takes place.
+
+Case 1 Game Created on 2 Device Dave's iPhone:
+1. Dave opens the Game app on 2 devices and the signed in player is retreived on both devices.
+2. Dave creates a new game (game 1) on iPhone. The iPad gets no callbacks.
+3. Dave reloads the sessions on iPhone. 1 new session is listed. Dave reloads the session on iPad. ZERO SESSIONS ARE LISTED (even though both are using the same iCloud account)
+4. Dave issues an invite (from the iPhone) to Michelle. Michelle accepts the invite, joinhing the game. ONLY THE IPHONE GETS THE SESSION DID ADD PLAYER CALL. ONLY THE IPHONE GETS THE TWO (FALSE POSITIVE) SESSION DID REMOVE PLAYER CALLS. Loading sessions again on the iPad still gets a result of 0 sessions.
+5. Dave saves data "Ice Cream". The opponent receives the session player did save data call. The iPhone does not receive any notification.
+6. Michelle saves "Apples". Only Dave's iPhone receives the session player did save data call.
+
+It's pretty clear that only the initiating device establishes communication with the GKGameSession. But what about if the game is now restarted on the iPad?
+
+7. iPad game restarted. Signed in player retreived. List of sessions retreived. STILL THE SESSION COUNT IS ZERO. Perhaps the iPad is caching the game data. So what if we stop the app on the iPad, delete it and re-install it? STILL THE SESSION COUNT ON THE IPAD IS ZERO.
+
+So then what about if the iPad itself is restarted. e.g. powered down and back up again (maybe there is some caching and Apple refresh the cache when the device is restarted)?
+
+8. iPad game started. Signed in player retreived. List of session retrieved. YES NOW THE SESSION IS PRESENT. So we can conclude, the local device is caching the list of game sessions and the cache goes stale. However, we should continue...
+9. Michelle saves again. STILL ONLY THE IPHONE GETS THE UDPATE. So maybe this is because we haven't loaded the game data for the iPad.
+10. Load data for session on iPad.
+11. Michelle saves again.
+12. Now neither the iPhone nor the iPad get the player saved session data call. iPhone attempts to save. We get a session conflict as we should expect. iPhone attempts to save again, this time the save succeeds (the session was updated).
+13. Michelle saves again. STILL NEITHER THE IPHONE NOR THE IPAD GET SESSION PLAYER DID SAVE DATA CALLBACKS. The session being updated on the iPhone does not cause it begin listening for events again.
+14. Dave loads the data for the session again on the iPhone.
+15. Michelle saves again. NOW THE IPHONE (AND ONLY THE IPHONE) GETS A SESSION PLAYER DID SAVE DATA CALLBACK.
+16. Dave loads the data for the session on the iPad.
+17. Michelle saves again.
+18. Dave loads the sessions again on the iPad and then the session data.
+17. Michelle saves again. STILL ONLY THE IPHONE GETS THE SESSION PLAYER DID SAVE DATA CALLBACK.
+
+Conclusion: Only the device that creates the session, or joins the session, is a part of the session. This is a significant Gotcha and limitation.
 
 ## Notes and Limitations
 
